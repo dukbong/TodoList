@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.todolist.entity.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-	Optional<UserEntity> findByUserName(String username);
+	Optional<UserEntity> findByUsername(String username);
 }

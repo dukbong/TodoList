@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.0'
 	id 'io.spring.dependency-management' version '1.1.5'
+	id 'jacoco'
 }
 
 group = 'com.example'
@@ -35,4 +36,14 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport // 테스트가 완료된 후 JaCoCo 리포트를 생성
+}
+
+jacocoTestReport {
+	dependsOn test // 테스트가 먼저 실행되어야 함
+	reports {
+		xml.required = true
+		csv.required = false
+		html.outputLocation = file("${buildDir}/jacocoHtml")
+	}
 }

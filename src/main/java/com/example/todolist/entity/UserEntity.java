@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,6 +33,7 @@ public class UserEntity {
 	@OneToMany(mappedBy = "userEntity")
 	private List<TodoEntity> todos = new ArrayList<>();
 
+	@Builder
 	public UserEntity(String username, String password, String role) {
 		this.username = username;
 		this.password = password;
