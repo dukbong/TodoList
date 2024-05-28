@@ -1,4 +1,5 @@
-# TodoEntity
+# Entity Structure
+## *TodoEntity*
 
 | Field            | Type            | Constraints                                      | Description                  |
 |------------------|-----------------|--------------------------------------------------|------------------------------|
@@ -8,10 +9,10 @@
 | `content`        | `String`        |                                                  | Todo content                 |
 | `startLine`      | `LocalDate`     |                                                  | Start date                   |
 | `deadLine`       | `LocalDate`     |                                                  | Deadline                     |
-| `todoStatus`     | `TodoStatus`    |                                                  | Todo status                  |
+| `todoStatus`     | `TodoStatus`    | `@Enumerated(EnumType.ORDINAL)`                  | Todo status                  |
 | `createAt`       | `LocalDateTime` |                                                  | Creation timestamp           |
 
-## Annotations and Methods
+### Annotations and Methods
 
 - `@Entity`
 - `@Getter`
@@ -22,7 +23,7 @@
 - `complete()`
 - `cancel()`
 
-# UserEntity
+## *UserEntity*
 
 | Field      | Type               | Constraints                                      | Description   |
 |------------|--------------------|--------------------------------------------------|---------------|
@@ -32,7 +33,7 @@
 | `role`     | `String`           |                                                  | User role     |
 | `todos`    | `List<TodoEntity>` | `@OneToMany(mappedBy = "userEntity")`            | List of todos |
 
-## Annotations and Methods
+### Annotations and Methods
 
 - `@Entity`
 - `@Getter`
@@ -40,13 +41,14 @@
 - `@SequenceGenerator(name = "user_gen", sequenceName = "user_seq")`
 - Constructor with `username`, `password`, `role`
 
-# PriorityEntity
+## *PriorityEntity*
+
 | Field      | Type               | Constraints                                      | Description   |
 |------------|--------------------|--------------------------------------------------|---------------|
 | `id`       | `Long`             | `@Id`, `@GeneratedValue`, `@SequenceGenerator`   | Primary key   |
-| `level`    | `Level`            |                                                  | Priority level|
+| `level`    | `Level`            | `@Enumerated(EnumType.STRING)`                   | Priority level|
 
-## Annotations and Methods
+### Annotations and Methods
 
 - `@Entity`
 - `@Getter`
@@ -54,7 +56,7 @@
 - `@SequenceGenerator(name = "priority_gen", sequenceName = "priority_seq")`
 - `@Builder`
 
-# Relationships
+## *Relationships*
 
 ```mermaid
 erDiagram
