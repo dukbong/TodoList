@@ -71,6 +71,14 @@ public class TodoService {
 					                .map(TodoEntity::toDTO)  // TodoEntity를 TodoDTO로 변환
 					                .collect(Collectors.toList());
 	}
+	
+	// Fetch Join
+    public List<Todo> getTodos2(Long userId) {
+        List<TodoEntity> todoEntities = todoRepository.getTodosWithUserFetchJoin(userId);
+        return todoEntities.stream()
+                .map(TodoEntity::toDTO)
+                .collect(Collectors.toList());
+    }
 
 	public void changeTodoPriority(Long todoId, Level level) {
 		// 우선 순위 조회
