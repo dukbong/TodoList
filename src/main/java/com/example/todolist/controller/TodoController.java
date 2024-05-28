@@ -13,18 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.todolist.dto.Todo;
+import com.example.todolist.enums.Level;
 import com.example.todolist.service.TodoService;
 
 import lombok.RequiredArgsConstructor;
 
-/***
- * 기능 1. 할일 추가 (insert)
- * 기능 2. 할일 성공 표시 (update)
- * 기능 3. 할일 취소 표시 (update)
- * 기능 4. 할일 모두 표시 (select)
- * 기능 5. 할일 시작 날짜로 조회 (select)
- * @return
- */
 @RestController
 @RequestMapping("/todo")
 @RequiredArgsConstructor
@@ -59,6 +52,12 @@ public class TodoController {
 	@GetMapping("/{startLine}/{deadLine}")
 	public ResponseEntity<List<Todo>> getBetweenTodos(@PathVariable("startLine") String StartLine, @PathVariable("deadLine") String deadLine) {
 		return ResponseEntity.ok().body(null);
+	}
+	
+	@PatchMapping("/{todoId}/priority/{priorityLevel}")
+	public ResponseEntity<String> changeTodoPriority(@PathVariable("todoId") Long todoId, @PathVariable("priorityLevel") Level level) {
+		todoService.changeTodoPriority(todoId, level);
+		return ResponseEntity.ok().body("Todo Priority has been update.");
 	}
 	
 }

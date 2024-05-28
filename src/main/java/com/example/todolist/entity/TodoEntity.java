@@ -3,9 +3,11 @@ package com.example.todolist.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.Check;
+import com.example.todolist.enums.TodoStatus;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,21 +34,26 @@ public class TodoEntity {
 	@JoinColumn(name = "user_entity_id")
 	private UserEntity userEntity;
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "priority_id")
+	private PriorityEntity priorityEntity;
+	
 	private String content;
 	
 	private LocalDate startLine;
 	
 	private LocalDate deadLine;
 	
-	@Check(constraints = "todoStatus IN (0, 1, 2)")
-	private int todoStatus;
+	@Enumerated(EnumType.STRING)
+	private TodoStatus todoStatus;
 	
 	private LocalDateTime createAt;
 	
 	@Builder
-	public TodoEntity(UserEntity userEntity, String content, LocalDate startLine, LocalDate deadLine,
-			LocalDateTime createAt, int todoStatus) {
+	public TodoEntity(UserEntity userEntity, PriorityEntity priorityEntity, String content, LocalDate startLine, LocalDate deadLine,
+			LocalDateTime createAt, TodoStatus todoStatus) {
 		this.userEntity = userEntity;
+		this.priorityEntity = priorityEntity;
 		this.content = content;
 		this.startLine = startLine;
 		this.deadLine = deadLine;
@@ -59,11 +66,15 @@ public class TodoEntity {
 	}
 	
 	public void complete() {
-		this.todoStatus = 1;
+		this.todoStatus = TodoStatus.COMPLETED;
 	}
 	
 	public void cancel() {
-		this.todoStatus = 2;
+		this.todoStatus = TodoStatus.CANCELLED;
+	}
+
+	public void changePriority(PriorityEntity priorityEntity) {
+		this.priorityEntity = priorityEntity;
 	}
 	
 }
