@@ -3,6 +3,7 @@ package com.example.todolist.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,7 +31,7 @@ public class UserEntity {
 	
 	private String role;
 	
-	@OneToMany(mappedBy = "userEntity")
+	@OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE)
 	private List<TodoEntity> todos = new ArrayList<>();
 
 	@Builder

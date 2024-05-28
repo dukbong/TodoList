@@ -1,8 +1,10 @@
 package com.example.todolist.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
@@ -96,6 +98,7 @@ public class TodoServiceTest {
 		
 		// then
 		assertThat(userEntity.getTodos().size()).isEqualTo(1);
+		assertThat(userEntity.getTodos().get(0).getTodoStatus()).isEqualTo(TodoStatus.PENDING);
 		
 		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(todo.getCreator());
 		Mockito.verify(priorityRepository, Mockito.times(1)).findByLevel(Level.MID);
@@ -224,9 +227,60 @@ public class TodoServiceTest {
 		
 		// then
 		assertThat(todoEntity.getPriorityEntity().getLevel()).isEqualTo(changeLevel);
+		assertThat(todoEntity.getTodoStatus()).isEqualTo(TodoStatus.PENDING);
 		
 		Mockito.verify(priorityRepository, Mockito.times(1)).findByLevel(changeLevel);
 		Mockito.verify(todoRepository, Mockito.times(1)).findById(todoId);
+	}
+	
+	@Test
+	void getTodosWhenUserNotFound() {
+		// given
+		Long userId = 1L;
+		
+		Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
+		
+		// when & then
+		IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> todoService.getTodos(userId));
+		assertThat(exception.getMessage()).isEqualTo("Not Found UserEntity.");
+		
+		Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
+	}
+	
+	@Test
+	void getTodosSuccessful() {
+		// given
+		Long userId = 1L;
+		LocalDate now = LocalDate.now();
+		
+		UserEntity userEntity = createUserEntity("dukbong", "password", "ROLE_ADMIN");
+		PriorityEntity priorityEntity = craetePriorityEntity(Level.MID);
+		
+		TodoEntity todoEntity1 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..1", now.plusDays(1), now.plusDays(2), LocalDateTime.now()); 
+		todoEntity1.addTodo();
+		TodoEntity todoEntity2 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..2", now.plusDays(2), now.plusDays(4), LocalDateTime.now()); 
+		todoEntity2.addTodo();
+		
+		Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+		
+		// when
+		List<Todo> todos = todoService.getTodos(userId);
+		
+		// then
+		assertThat(todos).isNotNull();
+		assertThat(todos.size()).isEqualTo(2);
+		
+		Todo getTodo1 = todos.get(0);
+		assertThat(getTodo1.getContent()).isEqualTo("TODO LIST..1");
+		assertThat(getTodo1.getStartLine()).isEqualTo(now.plusDays(1));
+		assertThat(getTodo1.getDeadLine()).isEqualTo(now.plusDays(2));
+		assertThat(getTodo1.getTodoStatus()).isEqualTo(TodoStatus.PENDING);
+		
+		Todo getTodo2 = todos.get(1);
+		assertThat(getTodo2.getContent()).isEqualTo("TODO LIST..2");
+		assertThat(getTodo2.getStartLine()).isEqualTo(now.plusDays(2));
+		assertThat(getTodo2.getDeadLine()).isEqualTo(now.plusDays(4));
+		assertThat(getTodo2.getTodoStatus()).isEqualTo(TodoStatus.PENDING);
 	}
 	
 }

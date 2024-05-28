@@ -3,6 +3,7 @@ package com.example.todolist.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.example.todolist.dto.Todo;
 import com.example.todolist.enums.TodoStatus;
 
 import jakarta.persistence.Entity;
@@ -67,14 +68,33 @@ public class TodoEntity {
 	
 	public void complete() {
 		this.todoStatus = TodoStatus.COMPLETED;
+		relationShipConnection();
 	}
 	
 	public void cancel() {
 		this.todoStatus = TodoStatus.CANCELLED;
+		relationShipConnection();
 	}
 
 	public void changePriority(PriorityEntity priorityEntity) {
 		this.priorityEntity = priorityEntity;
+		relationShipConnection();
+	}
+	
+	private void relationShipConnection() {
+		this.userEntity.getTodos().removeIf(todo -> todo.getId().equals(this.id));
+		this.userEntity.getTodos().add(this);
+	}
+	
+	public Todo toDTO() {
+		return Todo.builder().creator(this.getUserEntity().getUsername())
+							 .content(this.content)
+							 .startLine(this.startLine)
+							 .deadLine(this.deadLine)
+							 .createAt(this.createAt)
+							 .priority(this.priorityEntity.getLevel())
+							 .todoStatus(this.todoStatus)
+							 .build();
 	}
 	
 }

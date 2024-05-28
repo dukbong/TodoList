@@ -1,5 +1,9 @@
 package com.example.todolist.service;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
 import com.example.todolist.dto.Todo;
@@ -56,9 +60,16 @@ public class TodoService {
 		findTodoEntity.cancel();
 	}
 
-	public void getTodos() {
-		// TODO Auto-generated method stub
-		
+	public List<Todo> getTodos(Long userId) {
+		UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Not Found UserEntity."));
+		// 내림차순
+		// Comparator<TodoEntity> idComparator = Comparator.comparing(TodoEntity::getId).reversed();
+		// 오름차순
+		Comparator<TodoEntity> idComparator = Comparator.comparing(TodoEntity::getId);
+		return userEntity.getTodos().stream()
+					                .sorted(idComparator)
+					                .map(TodoEntity::toDTO)  // TodoEntity를 TodoDTO로 변환
+					                .collect(Collectors.toList());
 	}
 
 	public void changeTodoPriority(Long todoId, Level level) {

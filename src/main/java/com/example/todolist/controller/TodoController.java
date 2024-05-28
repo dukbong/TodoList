@@ -45,8 +45,8 @@ public class TodoController {
 	
 	@GetMapping
 	public ResponseEntity<List<Todo>> getTodos() {
-		todoService.getTodos();
-		return ResponseEntity.ok().body(null);
+		// 임시로 진행, 추후에는 모두 Authenticaion 객체에서 가져오게 만들기.
+		return ResponseEntity.ok().body(todoService.getTodos(1L));
 	}
 	
 	@GetMapping("/{startLine}/{deadLine}")
