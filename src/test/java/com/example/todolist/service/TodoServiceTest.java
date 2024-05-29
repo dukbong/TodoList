@@ -234,20 +234,6 @@ public class TodoServiceTest {
 	}
 	
 	@Test
-	void getTodosWhenUserNotFound() {
-		// given
-		Long userId = 1L;
-		
-		Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
-		
-		// when & then
-		IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> todoService.getTodos(userId));
-		assertThat(exception.getMessage()).isEqualTo("Not Found UserEntity.");
-		
-		Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
-	}
-	
-	@Test
 	void getTodosSuccessful() {
 		// given
 		Long userId = 1L;
@@ -257,11 +243,9 @@ public class TodoServiceTest {
 		PriorityEntity priorityEntity = craetePriorityEntity(Level.MID);
 		
 		TodoEntity todoEntity1 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..1", now.plusDays(1), now.plusDays(2), LocalDateTime.now()); 
-		todoEntity1.addTodo();
 		TodoEntity todoEntity2 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..2", now.plusDays(2), now.plusDays(4), LocalDateTime.now()); 
-		todoEntity2.addTodo();
 		
-		Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+		Mockito.when(todoRepository.getTodosWithUserFetchJoin(userId)).thenReturn(List.of(todoEntity1, todoEntity2));
 		
 		// when
 		List<Todo> todos = todoService.getTodos(userId);
@@ -281,6 +265,8 @@ public class TodoServiceTest {
 		assertThat(getTodo2.getStartLine()).isEqualTo(now.plusDays(2));
 		assertThat(getTodo2.getDeadLine()).isEqualTo(now.plusDays(4));
 		assertThat(getTodo2.getTodoStatus()).isEqualTo(TodoStatus.PENDING);
+		
+		Mockito.verify(todoRepository, Mockito.times(1)).getTodosWithUserFetchJoin(userId);
 	}
 	
 }
