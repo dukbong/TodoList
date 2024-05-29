@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -245,7 +246,7 @@ public class TodoServiceTest {
 		TodoEntity todoEntity1 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..1", now.plusDays(1), now.plusDays(2), LocalDateTime.now()); 
 		TodoEntity todoEntity2 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..2", now.plusDays(2), now.plusDays(4), LocalDateTime.now()); 
 		
-		Mockito.when(todoRepository.getTodosWithUserFetchJoin(userId)).thenReturn(List.of(todoEntity1, todoEntity2));
+		Mockito.when(todoRepository.getTodos(userId)).thenReturn(List.of(todoEntity1, todoEntity2));
 		
 		// when
 		List<Todo> todos = todoService.getTodos(userId);
@@ -266,7 +267,53 @@ public class TodoServiceTest {
 		assertThat(getTodo2.getDeadLine()).isEqualTo(now.plusDays(4));
 		assertThat(getTodo2.getTodoStatus()).isEqualTo(TodoStatus.PENDING);
 		
-		Mockito.verify(todoRepository, Mockito.times(1)).getTodosWithUserFetchJoin(userId);
+		Mockito.verify(todoRepository, Mockito.times(1)).getTodos(userId);
+	}
+	
+	@Test
+	void getBetweenTodosWhenStartIsAfterBefore() {
+		// given
+		Long userId = 1L;
+		LocalDate now = LocalDate.now();
+		LocalDate start = now.plusDays(2);
+		LocalDate end = now.plusDays(1);
+		
+		// when, then
+		IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> todoService.getBetweenTodos(userId, start, end));
+		assertThat(exception.getMessage()).isEqualTo("The start date cannot be greater than the end date.");
+		Mockito.verify(todoRepository, Mockito.times(0)).getBetweenTodos(userId, start, end);
+	}
+	
+	@Test
+	void getBetweenTodosSuccessful() {
+		// given
+		Long userId = 1L;
+		LocalDate now = LocalDate.now();
+		LocalDate start = now.plusDays(1);
+		LocalDate end = now.plusDays(3);
+		
+		UserEntity userEntity = createUserEntity("dukbong", "password", "ROLE_ADMIN");
+		PriorityEntity priorityEntity = craetePriorityEntity(Level.MID);
+		
+		TodoEntity todoEntity1 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..1", now.plusDays(1), now.plusDays(2), LocalDateTime.now()); 
+		TodoEntity todoEntity2 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..2", now.plusDays(2), now.plusDays(4), LocalDateTime.now()); 
+		TodoEntity todoEntity3 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..3", now.plusDays(2), now.plusDays(4), LocalDateTime.now()); 
+		TodoEntity todoEntity4 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..4", now.plusDays(4), now.plusDays(4), LocalDateTime.now()); 
+		
+		List<TodoEntity> todoEntities = Arrays.asList(todoEntity1, todoEntity2, todoEntity3);
+		
+		Mockito.when(todoRepository.getBetweenTodos(userId, start, end)).thenReturn(todoEntities);
+		
+		// when
+		List<Todo> todos = todoService.getBetweenTodos(userId, start, end);
+		
+		// then
+        assertThat(todos).hasSize(3); // Check only 3 todos within the date range
+        assertThat(todos.get(0).getContent()).isEqualTo("TODO LIST..1");
+        assertThat(todos.get(1).getContent()).isEqualTo("TODO LIST..2");
+        assertThat(todos.get(2).getContent()).isEqualTo("TODO LIST..3");
+        
+        Mockito.verify(todoRepository, Mockito.times(1)).getBetweenTodos(userId, start, end);
 	}
 	
 }

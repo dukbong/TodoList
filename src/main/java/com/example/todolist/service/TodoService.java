@@ -1,9 +1,11 @@
 package com.example.todolist.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import com.example.todolist.dto.Todo;
 import com.example.todolist.entity.PriorityEntity;
@@ -73,10 +75,18 @@ public class TodoService {
 	
 	// Fetch Join
     public List<Todo> getTodos(Long userId) {
-        List<TodoEntity> todoEntities = todoRepository.getTodosWithUserFetchJoin(userId);
-        return todoEntities.stream()
+        List<TodoEntity> todos = todoRepository.getTodos(userId);
+        return todos.stream()
                 .map(TodoEntity::toDTO)
                 .collect(Collectors.toList());
+    }
+    
+    public List<Todo> getBetweenTodos(Long userId, LocalDate start, LocalDate end) {
+    	Assert.isTrue(start.isBefore(end),"The start date cannot be greater than the end date.");
+    	List<TodoEntity> todos = todoRepository.getBetweenTodos(userId, start, end);
+    	return todos.stream()
+    				.map(TodoEntity::toDTO)
+    				.collect(Collectors.toList());
     }
 
 	public void changeTodoPriority(Long todoId, Level level) {

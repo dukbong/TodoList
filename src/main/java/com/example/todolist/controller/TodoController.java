@@ -1,5 +1,6 @@
 package com.example.todolist.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -45,13 +46,12 @@ public class TodoController {
 	
 	@GetMapping
 	public ResponseEntity<List<Todo>> getTodos() {
-		// 임시로 진행, 추후에는 모두 Authenticaion 객체에서 가져오게 만들기.
 		return ResponseEntity.ok().body(todoService.getTodos(1L));
 	}
 	
 	@GetMapping("/{startLine}/{deadLine}")
-	public ResponseEntity<List<Todo>> getBetweenTodos(@PathVariable("startLine") String StartLine, @PathVariable("deadLine") String deadLine) {
-		return ResponseEntity.ok().body(null);
+	public ResponseEntity<List<Todo>> getBetweenTodos(@PathVariable("startLine") LocalDate start, @PathVariable("deadLine") LocalDate end) {
+		return ResponseEntity.ok().body(todoService.getBetweenTodos(1L, start, end));
 	}
 	
 	@PatchMapping("/{todoId}/priority/{priorityLevel}")
