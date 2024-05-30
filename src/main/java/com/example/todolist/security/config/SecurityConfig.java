@@ -14,6 +14,8 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.todolist.security.filter.JWTFilter;
+import com.example.todolist.security.handler.JWTAccessDeniedHandler;
+import com.example.todolist.security.handler.JWTAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
@@ -31,12 +33,12 @@ public class SecurityConfig {
 	
 	@Bean
 	public AccessDeniedHandler accessDeniedHandler() {
-		return null;
+		return new JWTAccessDeniedHandler();
 	}
 	
 	@Bean
 	public AuthenticationEntryPoint authenticationEntryPoint() {
-		return null;
+		return new JWTAuthenticationEntryPoint();
 	}
 	
 	@Bean

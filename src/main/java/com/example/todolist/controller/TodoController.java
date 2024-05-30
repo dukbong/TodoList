@@ -49,8 +49,8 @@ public class TodoController {
 		return ResponseEntity.ok().body(todoService.getTodos(1L));
 	}
 	
-	@GetMapping("/{startLine}/{deadLine}")
-	public ResponseEntity<List<Todo>> getBetweenTodos(@PathVariable("startLine") LocalDate start, @PathVariable("deadLine") LocalDate end) {
+	@GetMapping("/{start}/{end}")
+	public ResponseEntity<List<Todo>> getBetweenTodos(@PathVariable("start") LocalDate start, @PathVariable("end") LocalDate end) {
 		return ResponseEntity.ok().body(todoService.getBetweenTodos(1L, start, end));
 	}
 	
