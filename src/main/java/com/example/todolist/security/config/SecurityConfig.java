@@ -13,9 +13,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.example.todolist.security.filter.JWTFilter;
-import com.example.todolist.security.handler.JWTAccessDeniedHandler;
-import com.example.todolist.security.handler.JWTAuthenticationEntryPoint;
+import com.example.todolist.security.jwt.filter.JWTFilter;
+import com.example.todolist.security.jwt.handler.JWTAccessDeniedHandler;
+import com.example.todolist.security.jwt.handler.JWTAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
@@ -49,7 +49,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(auth -> {
-			auth.requestMatchers("/", "/login", "/join").permitAll();
+			auth.requestMatchers("/user/**").permitAll();
 			auth.requestMatchers("/todo/**").hasRole("USER");
 			auth.requestMatchers("/log/**").hasRole("ADMIN");
 			auth.anyRequest().authenticated();

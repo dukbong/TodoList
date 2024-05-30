@@ -1,4 +1,4 @@
-package com.example.todolist.security.handler;
+package com.example.todolist.security.jwt.handler;
 
 import java.io.IOException;
 
