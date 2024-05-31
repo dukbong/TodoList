@@ -29,6 +29,8 @@ public class UserEntity {
 	
 	private String username;
 	
+	private String email;
+	
 	private String password;
 	
 	private String role;
@@ -45,8 +47,9 @@ public class UserEntity {
 	private RefreshTokenEntity refreshTokenEntity;
 
 	@Builder
-	public UserEntity(String username, String password, String role, ActiveTokenEntity activeTokenEntity, RefreshTokenEntity refreshTokenEntity) {
+	public UserEntity(String username, String email, String password, String role, ActiveTokenEntity activeTokenEntity, RefreshTokenEntity refreshTokenEntity) {
 		this.username = username;
+		this.email = email;
 		this.password = password;
 		this.role = role;
 		this.activeTokenEntity = activeTokenEntity;

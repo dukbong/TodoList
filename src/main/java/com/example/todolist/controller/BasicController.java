@@ -22,25 +22,26 @@ public class BasicController {
 	private final BasicService basicService;
 
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody Login login) {
+	public ResponseEntity<String> loginProcess(@RequestBody Login login) {
 		String jwtToken = basicService.loginProcess(login);
 		return ResponseEntity.ok().body("Login Successful.");
 	}
 	
 	@PostMapping
-	public ResponseEntity<String> join(@RequestBody Join join) {
+	public ResponseEntity<String> joinProcess(@RequestBody Join join) {
+		basicService.joinProcess(join);
 		return ResponseEntity.ok().body("Join Successful.");
 	}
 	
 	@PostMapping("/check-email/send")
 	public ResponseEntity<String> checkEmailSend(@RequestBody String email) {
-		basicService.sendEmail(email);
+		basicService.checkEmailSend(email);
 		return ResponseEntity.ok().body("Check email sent.");
 	}
 	
 	@GetMapping("/check-email/validate")
 	public ResponseEntity<String> checkEmailValidation(@RequestParam("email") String email, @RequestParam("token") String token) {
-		basicService.checkEmail(email, token);
+		basicService.checkEmailValidation(email, token);
 		return ResponseEntity.ok().body("Email validation successful.");
 	}
 }
