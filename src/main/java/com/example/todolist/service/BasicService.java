@@ -18,15 +18,11 @@ public class BasicService {
 	private final MailService mailService;
 	
 	public void checkEmailSend(String email) {
-		boolean emailCheck = userRepository.existsByEmail(email);
-		if(emailCheck) {
-			throw new DuplicateKeyException("This email already exists.");
-		}
-		mailService.sendEmail(email);
+		mailService.sendEmail(emailValidation(email));
 	}
 	
 	public void checkEmailValidation(String email, String authenticationText) {
-		// Redis에서 확인하기
+		// Redis에서 확인하기 : 제한 시간 1분
 	}
 
 	public String loginProcess(Login login) {
@@ -35,11 +31,26 @@ public class BasicService {
 
 	public void joinProcess(Join join) {
 		passwordValidation(join.getPassword()); 
-		boolean usernameCheck = userRepository.existsByUsername(join.getUsername());
+		usernameValidation(join.getUsername());
+		userRepository.save(join.convertUserEntity());
+	}
+	
+	private String emailValidation(String email) {
+		boolean emailCheck = userRepository.existsByEmail(email);
+		
+		if(emailCheck) {
+			throw new DuplicateKeyException("This email already exists.");
+		}
+		
+		return email;
+	}
+	
+	private void usernameValidation(String username) {
+		boolean usernameCheck = userRepository.existsByUsername(username);
+		
 		if(usernameCheck) {
 			throw new DuplicateKeyException("This username already exists.");
 		}
-		userRepository.save(join.convertUserEntity());
 	}
 	
 	private void passwordValidation(String password) {
