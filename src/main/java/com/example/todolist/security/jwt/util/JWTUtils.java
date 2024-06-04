@@ -2,12 +2,13 @@ package com.example.todolist.security.jwt.util;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import com.example.todolist.security.jwt.enums.Role;
 
 import io.fusionauth.jwt.InvalidJWTException;
 import io.fusionauth.jwt.Signer;
@@ -29,16 +30,16 @@ public class JWTUtils {
 	
 	private ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 	
-	public String generateToken(String username, List<String> roles) {
+	public String generateToken(String username, Role role) {
 		Assert.hasText(username, "Username is required.");
-		Assert.notEmpty(roles, "Role list cannot be empty.");
-        roles.forEach(role -> Assert.hasText(role, "Role is required."));
-		return createToken(username, roles);
+		Assert.hasText(role.name(), "Role list cannot be empty."); // 버어 있는지 검증
+		Assert.isTrue(Role.isValidRole(role.name()), "Invalid role: " + role.name()); // Enum에 존재하는지 검증
+		return createToken(username, role);
 	}
 
-	private String createToken(String username, List<String> roles) {
+	private String createToken(String username, Role role) {
 		Signer signer = HMACSigner.newSHA256Signer(secretKey);
-		JWT jwt = new JWT().setIssuer("dukbong").setIssuedAt(now).setSubject(username).setExpiration(now.plusSeconds(expiration)).addClaim("username", username).addClaim("roles", roles);
+		JWT jwt = new JWT().setIssuer("dukbong").setIssuedAt(now).setSubject(username).setExpiration(now.plusSeconds(expiration)).addClaim("username", username).addClaim("role", role);
 		return JWT.getEncoder().encode(jwt, signer);
 	}
 	

@@ -3,8 +3,13 @@ package com.example.todolist.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.todolist.security.jwt.enums.Role;
+
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,7 +38,11 @@ public class UserEntity {
 	
 	private String password;
 	
-	private String role;
+	@Enumerated(EnumType.STRING)
+	private Role role;
+	
+	@Column(length = 1)
+	private String useYn;
 	
 	@OneToMany(mappedBy = "userEntity", cascade = CascadeType.REMOVE)
 	private List<TodoEntity> todos = new ArrayList<>();
@@ -47,13 +56,16 @@ public class UserEntity {
 	private RefreshTokenEntity refreshTokenEntity;
 
 	@Builder
-	public UserEntity(String username, String email, String password, String role, ActiveTokenEntity activeTokenEntity, RefreshTokenEntity refreshTokenEntity) {
+	public UserEntity(String username, String email, String password, Role role, ActiveTokenEntity activeTokenEntity, RefreshTokenEntity refreshTokenEntity, String useYn) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
 		this.role = role;
 		this.activeTokenEntity = activeTokenEntity;
 		this.refreshTokenEntity = refreshTokenEntity;
+		if(!"Y".equals(useYn) && !"N".equals(useYn)) {
+            throw new IllegalArgumentException("useYn must be 'Y' or 'N'");
+        }
+        this.useYn = useYn;
 	}
-	
 }

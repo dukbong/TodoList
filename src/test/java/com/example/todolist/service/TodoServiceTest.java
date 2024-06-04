@@ -25,6 +25,7 @@ import com.example.todolist.enums.TodoStatus;
 import com.example.todolist.repository.PriorityRepository;
 import com.example.todolist.repository.TodoRepository;
 import com.example.todolist.repository.UserRepository;
+import com.example.todolist.security.jwt.enums.Role;
 
 @ExtendWith(MockitoExtension.class)
 public class TodoServiceTest {
@@ -42,8 +43,8 @@ public class TodoServiceTest {
 		return Todo.builder().creator(creator).content(content).createAt(createAt).startLine(startLine).deadLine(deadLine).build();
 	}
 	
-	public static UserEntity createUserEntity(String username, String password, String role) {
-		return UserEntity.builder().username(username).password(password).role(role).build();
+	public static UserEntity createUserEntity(String username, String password, Role role, String useYn) {
+		return UserEntity.builder().username(username).password(password).role(role).useYn(useYn).build();
 	}
 	
 	public static PriorityEntity craetePriorityEntity(Level level) {
@@ -58,29 +59,29 @@ public class TodoServiceTest {
 	void createTodoWhenUserNotFound() {
 		// given
 		Todo todo = createTodo("dukbong", "todoList", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalDate.now().plusDays(2));
-		Mockito.when(userRepository.findByUsername(todo.getCreator())).thenReturn(Optional.empty());
+		Mockito.when(userRepository.findByUsernameAndUseYn(todo.getCreator(), "Y")).thenReturn(Optional.empty());
 		
 		// when & then
 		IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> todoService.createTodo(todo));
 		assertThat(exception.getMessage()).isEqualTo("Not Found UserEntity.");
 		
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(todo.getCreator());
+		Mockito.verify(userRepository, Mockito.times(1)).findByUsernameAndUseYn(todo.getCreator(), "Y");
 	}
 	
 	@Test
 	void createTodoWhenPriorityNotFound() {
 		// given
 		Todo todo = createTodo("dukbong", "todoList", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalDate.now().plusDays(2));
-		UserEntity userEntity = createUserEntity("dukbong", "password", "ROLE_ADMIN");
+		UserEntity userEntity = createUserEntity("dukbong", "password", Role.ROLE_ADMIN, "Y");
 		
-		Mockito.when(userRepository.findByUsername(todo.getCreator())).thenReturn(Optional.of(userEntity));
+		Mockito.when(userRepository.findByUsernameAndUseYn(todo.getCreator(), "Y")).thenReturn(Optional.of(userEntity));
 		Mockito.when(priorityRepository.findByLevel(Level.MID)).thenReturn(Optional.empty());
 		
 		// when & then
 		IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> todoService.createTodo(todo));
 		assertThat(exception.getMessage()).isEqualTo("MID priority Not Found.");
 		
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(todo.getCreator());
+		Mockito.verify(userRepository, Mockito.times(1)).findByUsernameAndUseYn(todo.getCreator(), "Y");
 		Mockito.verify(priorityRepository, Mockito.times(1)).findByLevel(Level.MID);
 	}
 	
@@ -88,10 +89,10 @@ public class TodoServiceTest {
 	void createTodoSuccessful() {
 		// given
 		Todo todo = createTodo("dukbong", "todoList", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalDate.now().plusDays(2));
-		UserEntity userEntity = createUserEntity("dukbong", "password", "ROLE_ADMIN");
+		UserEntity userEntity = createUserEntity("dukbong", "password", Role.ROLE_ADMIN, "Y");
 		PriorityEntity priorityEntity = craetePriorityEntity(Level.MID);
 		
-		Mockito.when(userRepository.findByUsername(todo.getCreator())).thenReturn(Optional.of(userEntity));
+		Mockito.when(userRepository.findByUsernameAndUseYn(todo.getCreator(), "Y")).thenReturn(Optional.of(userEntity));
 		Mockito.when(priorityRepository.findByLevel(Level.MID)).thenReturn(Optional.of(priorityEntity));
 		
 		// when
@@ -101,7 +102,7 @@ public class TodoServiceTest {
 		assertThat(userEntity.getTodos().size()).isEqualTo(1);
 		assertThat(userEntity.getTodos().get(0).getTodoStatus()).isEqualTo(TodoStatus.PENDING);
 		
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(todo.getCreator());
+		Mockito.verify(userRepository, Mockito.times(1)).findByUsernameAndUseYn(todo.getCreator(), "Y");
 		Mockito.verify(priorityRepository, Mockito.times(1)).findByLevel(Level.MID);
 		Mockito.verify(todoRepository, Mockito.times(1)).save(Mockito.any(TodoEntity.class));
 	}
@@ -124,7 +125,7 @@ public class TodoServiceTest {
 		// given
 		Long todoId = 1L;
 		LocalDate now = LocalDate.now();
-		UserEntity userEntity = createUserEntity("dukbong", "password", "ROLE_ADMIN");
+		UserEntity userEntity = createUserEntity("dukbong", "password", Role.ROLE_ADMIN, "Y");
 		PriorityEntity priorityEntity = craetePriorityEntity(Level.MID);
 		TodoEntity todoEntity = createTodoEntity(userEntity, priorityEntity,"TODO LIST..", now.plusDays(1), now.plusDays(2), LocalDateTime.now()); 
 		
@@ -158,7 +159,7 @@ public class TodoServiceTest {
 		Long todoId = 1L;
 		LocalDate now = LocalDate.now();
 		PriorityEntity priorityEntity = craetePriorityEntity(Level.MID);
-		UserEntity userEntity = createUserEntity("dukbong", "password", "ROLE_ADMIN");
+		UserEntity userEntity = createUserEntity("dukbong", "password", Role.ROLE_ADMIN, "Y");
 		TodoEntity todoEntity = createTodoEntity(userEntity, priorityEntity,"TODO LIST..", now.plusDays(1), now.plusDays(2), LocalDateTime.now()); 
 		
 		Mockito.when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
@@ -217,7 +218,7 @@ public class TodoServiceTest {
 		PriorityEntity findPriorityEntity = craetePriorityEntity(changeLevel);
 		
 		PriorityEntity priorityEntity = craetePriorityEntity(Level.MID);
-		UserEntity userEntity = createUserEntity("dukbong", "password", "ROLE_ADMIN");
+		UserEntity userEntity = createUserEntity("dukbong", "password", Role.ROLE_ADMIN, "Y");
 		TodoEntity todoEntity = createTodoEntity(userEntity, priorityEntity,"TODO LIST..", now.plusDays(1), now.plusDays(2), LocalDateTime.now()); 
 		
 		Mockito.when(priorityRepository.findByLevel(changeLevel)).thenReturn(Optional.of(findPriorityEntity));
@@ -240,7 +241,7 @@ public class TodoServiceTest {
 		Long userId = 1L;
 		LocalDate now = LocalDate.now();
 		
-		UserEntity userEntity = createUserEntity("dukbong", "password", "ROLE_ADMIN");
+		UserEntity userEntity = createUserEntity("dukbong", "password", Role.ROLE_ADMIN, "Y");
 		PriorityEntity priorityEntity = craetePriorityEntity(Level.MID);
 		
 		TodoEntity todoEntity1 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..1", now.plusDays(1), now.plusDays(2), LocalDateTime.now()); 
@@ -292,7 +293,7 @@ public class TodoServiceTest {
 		LocalDate start = now.plusDays(1);
 		LocalDate end = now.plusDays(3);
 		
-		UserEntity userEntity = createUserEntity("dukbong", "password", "ROLE_ADMIN");
+		UserEntity userEntity = createUserEntity("dukbong", "password", Role.ROLE_ADMIN, "Y");
 		PriorityEntity priorityEntity = craetePriorityEntity(Level.MID);
 		
 		TodoEntity todoEntity1 = createTodoEntity(userEntity, priorityEntity,"TODO LIST..1", now.plusDays(1), now.plusDays(2), LocalDateTime.now()); 

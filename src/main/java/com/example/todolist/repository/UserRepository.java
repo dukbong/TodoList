@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.todolist.entity.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-	Optional<UserEntity> findByUsername(String username);
+	Optional<UserEntity> findByUsernameAndUseYn(String username, String useYn);
 
-	Optional<UserEntity> findByUsernameAndPassword(String username, String password);
+	Optional<UserEntity> findByUsernameAndPasswordAndUseYn(String username, String password, String useYn);
 
 	Boolean existsByUsername(String username);
 

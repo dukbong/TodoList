@@ -29,7 +29,7 @@ public class TodoService {
 	
 	public void createTodo(Todo todo) {
 		// 사용자 조회
-		UserEntity findUserEntity = userRepository.findByUsername(todo.getCreator()).orElseThrow(() -> new IllegalArgumentException("Not Found UserEntity."));
+		UserEntity findUserEntity = userRepository.findByUsernameAndUseYn(todo.getCreator(), "Y").orElseThrow(() -> new IllegalArgumentException("Not Found UserEntity."));
 		
 		// 우선 순위 조회
 		PriorityEntity MidPriority = priorityRepository.findByLevel(Level.MID).orElseThrow(() -> new IllegalArgumentException("MID priority Not Found."));

@@ -1,6 +1,7 @@
 package com.example.todolist.dto;
 
 import com.example.todolist.entity.UserEntity;
+import com.example.todolist.security.jwt.enums.Role;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +23,6 @@ public class Join {
 	}
 	
 	public UserEntity convertUserEntity() {
-		return UserEntity.builder().username(username).password(password).role("ROLE_USER").build();
+		return UserEntity.builder().username(username).password(password).role(Role.ROLE_USER).useYn("Y").build();
 	}
 }
